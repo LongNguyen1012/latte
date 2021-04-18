@@ -2,3 +2,5 @@
 *.jpg
 *.ipynb
 __pycache__/
+/latte_env/
+/latte_env_38/
