@@ -83,7 +83,8 @@ function init() {
     document.addEventListener("keydown", onKeyDown2);  //or however you are calling your method
     document.addEventListener("keyup", onKeyUp2);
     // document.getElementById( 'record' ).addEventListener( 'click', toggleRecord, false );
-
+    document.getElementById( 'upload' ).addEventListener( 'click', upload_file, false );
+    
     window.onbeforeunload = function(evt) {
         return true;
     }
@@ -99,6 +100,32 @@ function write_frame_out() {
 //     evaluation.add_evaluator(evaluator);
 //     evaluation.write_frame();
 // }
+
+function upload_file( event ) {
+    event.preventDefault();
+    console.log("I'm clicked");
+    const input = document.getElementById('file-input');
+    if (input.files.length > 0) {
+        const file = input.files[0];
+        const formData = new FormData();
+        formData.append("image_file", file);
+
+        $.ajax({
+            url: '/upload-image',
+            type: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                console.log("Upload success!")
+                init()
+            },
+            error: function(error) {
+                console.log(error);
+            }
+        });
+    }
+}
 
 function predictLabel(boundingBox) {
     if (!enable_predict_label) {return;}

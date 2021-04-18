@@ -9,13 +9,38 @@ import numpy as np
 import json
 import os
 from pathlib import Path
+import zipfile
+import shutil
 
 app = Flask(__name__, static_url_path='/static')
+app.config["UPLOAD_FOLDER"] = "./test_dataset"
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
 @app.route("/")
 def root():
 	return render_template("index.html")
+
+
+@app.route('/upload-image', methods = ['POST'])
+def upload_file():
+	f = request.files['image_file']
+	file_path = "./app/zip_dataset/{}".format(f.filename)
+	f.save(file_path)
+
+	output_path = "./app/unzip_dataset/{}".format(f.filename.replace(".zip", ""))
+	with zipfile.ZipFile(file_path, 'r') as zip_ref:
+		zip_ref.extractall(output_path)
+
+	file_name = f.filename.replace(".zip", "")
+	source = "./app/unzip_dataset/{}/{}".format(file_name, file_name)
+	destination = "./app/test_dataset/{}".format(file_name, file_name)
+	dest = shutil.move(source, destination) 
+
+	fh = FrameHandler()
+	bp = BoundingBoxPredictor(fh)
+
+	return 'file uploaded successfully'
+
 
 @app.route("/initTracker", methods=["POST"])
 def init_tracker():
@@ -23,6 +48,7 @@ def init_tracker():
 	pointcloud = PointCloud.parse_json(json_request["pointcloud"])
 	tracker = Tracker(pointcloud)
 	return "success"
+
 
 @app.route("/trackBoundingBoxes", methods=['POST'])
 def trackBoundingBox():
@@ -72,6 +98,7 @@ def writeOutput():
 def loadFrameNames():
 	return fh.get_frame_names()
 
+
 @app.route("/getFramePointCloud", methods=['POST'])
 def getFramePointCloud():
 	json_request = request.get_json()
@@ -80,6 +107,7 @@ def getFramePointCloud():
 	data_str = fh.get_pointcloud(drivename, fname, dtype=str)
 	annotation_str = str(fh.load_annotation(drivename, fname, dtype='json'))
 	return '?'.join([data_str, annotation_str])
+
 
 @app.route("/predictBoundingBox", methods=['POST'])
 def predictBoundingBox():
@@ -94,6 +122,7 @@ def predictBoundingBox():
 	frame = fh.get_pointcloud(drivename, fname, dtype=float, ground_removed=True)
 	return str(bp.predict_bounding_box(point, frame))
 
+
 @app.route("/predictNextFrameBoundingBoxes", methods=['POST'])
 def predictNextFrameBoundingBoxes():
 	json_request = request.get_json()
@@ -107,6 +136,7 @@ def predictNextFrameBoundingBoxes():
 	print(res)
 
 	return str(res)
+
 
 @app.route("/loadAnnotation", methods=['POST'])
 def loadAnnotation():
