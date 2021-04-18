@@ -6,7 +6,7 @@ from models import Frame
 import tensorflow as tf
 
 class FrameHandler():
-	CUR_DIR =dirname(realpath(__file__))
+	CUR_DIR = dirname(realpath(__file__))
 	DATASET_DIR = join(CUR_DIR, "test_dataset")
 	INPUT_BIN_DIR = "bin_data"
 	GROUND_REMOVED_DIR = "ground_removed"

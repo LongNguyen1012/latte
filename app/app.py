@@ -16,6 +16,9 @@ app = Flask(__name__, static_url_path='/static')
 app.config["UPLOAD_FOLDER"] = "./test_dataset"
 DIR_PATH = os.path.dirname(os.path.realpath(__file__))
 
+fh = None
+bp = None
+
 @app.route("/")
 def root():
 	return render_template("index.html")
@@ -36,6 +39,8 @@ def upload_file():
 	destination = "./app/test_dataset/{}".format(file_name, file_name)
 	dest = shutil.move(source, destination) 
 
+	global fh
+	global bp
 	fh = FrameHandler()
 	bp = BoundingBoxPredictor(fh)
 

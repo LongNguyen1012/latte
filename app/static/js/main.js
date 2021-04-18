@@ -117,8 +117,8 @@ function upload_file( event ) {
             processData: false,
             contentType: false,
             success: function(response) {
-                console.log("Upload success!")
-                init()
+                console.log("Upload success!");
+                app.init();
             },
             error: function(error) {
                 console.log(error);
